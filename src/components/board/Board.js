@@ -66,6 +66,11 @@ export class Board extends React.Component {
         }
 
         const nextHeadCell = this.state.board[nextHeadCoordinates.row][nextHeadCoordinates.column];
+        if (this.state.snakeCells.has(nextHeadCell)) {
+            this.handleGameOver();
+            return;
+        }
+
         const newHead = new LinkedListNode({
             row: nextHeadCoordinates.row,
             column: nextHeadCoordinates.column,
@@ -202,7 +207,7 @@ export class Board extends React.Component {
 
         setInterval(() => {
             this.moveSnake();
-        }, 150);
+        }, 100);
     }
 
     render() {
