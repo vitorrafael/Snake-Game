@@ -1,0 +1,14 @@
+.board {
+    outline: 2px solid black;
+}
+
+.row {
+    height: 35px;
+}
+
+.cell {
+    width: 35px;
+    height: 35px;
+    outline: 1px solid black;
+    display: inline-block;
+}
