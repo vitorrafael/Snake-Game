@@ -9,14 +9,16 @@
 .cell {
     width: 35px;
     height: 35px;
-    outline: 1px solid black;
+    outline: 1px solid #a9a9a9;
     display: inline-block;
 }
 
 .snake-cell {
     background-color: green;
+    outline: 1.5px solid black
 }
 
 .food-cell {
     background-color: red;
+    outline: 1.5px solid black;
 }
