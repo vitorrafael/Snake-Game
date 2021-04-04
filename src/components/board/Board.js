@@ -34,13 +34,15 @@ export class Board extends React.Component {
         const snakeCells = new Set([snake.head.value.cell]);
         const foodCell = snake.head.value.cell + 5;
         const direction = DIRECTION.RIGHT;
+        const score = 0;
 
         this.state = {
-            board: board,
-            snake: snake,
-            snakeCells: snakeCells,
-            direction: direction,
-            foodCell: foodCell
+            board,
+            snake,
+            snakeCells,
+            direction,
+            foodCell,
+            score
         }
     }
 
@@ -126,7 +128,8 @@ export class Board extends React.Component {
             else break;
         }
 
-        this.setState({ foodCell: nextFoodCell });
+        const score = this.state.score + 1;
+        this.setState({ foodCell: nextFoodCell, score });
     }
 
     handleKeydown(event) {
@@ -185,12 +188,14 @@ export class Board extends React.Component {
         const snakeCells = new Set([snake.head.value.cell]);
         const direction = DIRECTION.RIGHT;
         const foodCell = snake.head.value.cell + 5;
+        const score = 0;
 
         this.setState({
             snake,
             snakeCells,
             direction,
-            foodCell
+            foodCell,
+            score
         });
     }
 
@@ -213,6 +218,7 @@ export class Board extends React.Component {
     render() {
         return (
             <>
+                <h1>Score: {this.state.score}</h1>
                 <div className="board">
                     {this.state.board.map((row, rowIndex) => (
                         <div key={rowIndex} className="row">
