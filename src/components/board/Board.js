@@ -69,7 +69,7 @@ export class Board extends React.Component {
     }
 
     handleKeydown(event) {
-        const newDirection = Direction[event.key.substring(5).toUpperCase()];
+        const newDirection = this.getDirectionFromKeyboardPress(event.key);
         if (!newDirection || newDirection === this.getOppositeDirection(this.state.direction)) return;
         this.setState({ direction: newDirection });
     }
