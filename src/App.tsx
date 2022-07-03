@@ -1,10 +1,10 @@
-import './App.css';
-import { Board } from './components/board/Board';
+import "./App.css";
+import Board from "./components/board/Board";
 
 function App() {
   return (
     <div className="App">
-      <Board></Board>
+      <Board />
     </div>
   );
 }
