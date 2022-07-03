@@ -35,6 +35,12 @@ const snakeStartingRow: number = Math.floor(BOARD_SIZE / 3);
 const snakeStartingColumn: number = Math.floor(BOARD_SIZE / 3);
 
 export default function Board() {
+  useEffect(() => {
+    document.addEventListener("keydown", (e) => handleKeydown(e));
+    return () =>
+      document.removeEventListener("keydown", (e) => handleKeydown(e));
+  });
+
   const [score, setScore] = useState(0);
   const [snake, setSnake] = useState(
     new LinkedList<SnakePart>({
@@ -63,11 +69,6 @@ export default function Board() {
     _setDirection(newDirection);
   };
 
-  useEffect(() => {
-    document.addEventListener("keydown", (e) => handleKeydown(e));
-    return () =>
-      document.removeEventListener("keydown", (e) => handleKeydown(e));
-  });
 
   useInterval(() => moveSnake(), 100);
 
