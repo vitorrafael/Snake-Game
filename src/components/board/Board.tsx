@@ -205,7 +205,6 @@ export const Board: FunctionComponent = () => {
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    debugger;
     const newDirection = getDirectionFromKeyboardPress(event.key);
     if (
       newDirection !== undefined &&
