@@ -60,7 +60,7 @@ export const Board: FunctionComponent = () => {
     _setSnakeCells(newSnakeCells);
   };
 
-  const [foodCell, setFoodCell] = useState(getNextFoodCell());
+  const [foodCell, setFoodCell] = useState<number>();
 
   const [direction, _setDirection] = useState(Direction.Right);
   const directionRef = useRef(direction);
