@@ -36,12 +36,12 @@ enum Direction {
   Down = "Down",
 }
 
-export const Board: FunctionComponent = () => {
-  const board: BoardType = createBoard(BOARD_SIZE);
-  const [score, setScore] = useState(0);
+const board: BoardType = createBoard(BOARD_SIZE);
+const snakeStartingRow: number = Math.floor(BOARD_SIZE / 3);
+const snakeStartingColumn: number = Math.floor(BOARD_SIZE / 3);
 
-  const snakeStartingRow: number = Math.floor(BOARD_SIZE / 3);
-  const snakeStartingColumn: number = Math.floor(BOARD_SIZE / 3);
+export const Board: FunctionComponent = () => {
+  const [score, setScore] = useState(0);
   const [snake, setSnake] = useState(
     new LinkedList<SnakePart>({
       row: snakeStartingRow,
