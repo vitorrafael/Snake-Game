@@ -1,5 +1,6 @@
 import React, { FunctionComponent, useEffect, useState, useRef } from "react";
 
+import { Direction } from "./Direction";
 import { generateRandomNumberInRange } from "../../utils/Utils";
 import { LinkedList, LinkedListNode } from "./LinkedList";
 
@@ -27,13 +28,6 @@ enum CellClassName {
   Food = "cell food-cell",
   Snake = "cell snake-cell",
   Board = "cell",
-}
-
-enum Direction {
-  Up = "Up",
-  Left = "Left",
-  Right = "Right",
-  Down = "Down",
 }
 
 const board: BoardType = createBoard(BOARD_SIZE);
