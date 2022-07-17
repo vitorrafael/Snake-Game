@@ -170,9 +170,8 @@ export default function Board() {
   }
 
   function handleFoodConsumption() {
-    const nextFoodCell = getNextFoodCell();
-    setScore(score + 1);
-    setFoodCell(nextFoodCell);
+    setScore((currentScore) => currentScore + 1);
+    setFoodCell(getNextFoodCell);
   }
 
   function handleGameOver() {
