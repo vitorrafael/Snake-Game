@@ -68,8 +68,6 @@ export default function Board() {
     cell: board[snakeStartingRow][snakeStartingColumn],
   });
 
-  const [foodCell, setFoodCell] = useState<number>();
-
   const [direction, _setDirection] = useState(Direction.Right);
   const directionRef = useRef(direction);
   const setDirection = (newDirection: Direction) => {
@@ -77,11 +75,21 @@ export default function Board() {
     _setDirection(newDirection);
   };
 
+  const [foodCell, setFoodCell] = useState<number>(getStartingFoodCell);
 
   function getCellClassName(cellValue: number): string {
     if (cellValue === foodCell) return CellClassName.Food;
     if (snakeUnits.has(cellValue)) return CellClassName.Snake;
     return CellClassName.Board;
+  }
+
+  function getStartingFoodCell(): number {
+    const maxPossibleCellValue = BOARD_SIZE * BOARD_SIZE;
+    let nextFoodCell: number;
+    do {
+      nextFoodCell = generateRandomNumberInRange(1, maxPossibleCellValue);
+    } while (snakeUnits.has(nextFoodCell));
+    return nextFoodCell;
   }
 
   function getNextFoodCell(): number {
