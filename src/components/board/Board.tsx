@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import { Direction } from "./Direction";
 import { generateRandomNumberInRange } from "../../utils/Utils";
@@ -6,6 +6,7 @@ import { LinkedList, LinkedListNode } from "./LinkedList";
 
 import "./Board.css";
 import useInterval from "../../utils/useInterval";
+import { useSnake } from "../snake/Snake";
 
 const BOARD_SIZE = 12;
 
@@ -14,8 +15,6 @@ type SnakePart = {
   column: number;
   cell: number;
 };
-
-type SnakeCellsType = Set<SnakePart["cell"]>;
 
 type BoardType = Array<Array<number>>;
 
@@ -30,6 +29,20 @@ enum CellClassName {
   Board = "cell",
 }
 
+function createBoard(boardSize: number): BoardType {
+  let counter = 1;
+  const board = [];
+
+  for (let i = 0; i < boardSize; i++) {
+    const currentRow = [];
+    for (let j = 0; j < boardSize; j++) {
+      currentRow.push(counter++);
+    }
+    board.push(currentRow);
+  }
+  return board;
+}
+
 const board: BoardType = createBoard(BOARD_SIZE);
 const snakeStartingRow: number = Math.floor(BOARD_SIZE / 3);
 const snakeStartingColumn: number = Math.floor(BOARD_SIZE / 3);
@@ -42,23 +55,18 @@ export default function Board() {
   });
 
   const [score, setScore] = useState(0);
-  const [snake, setSnake] = useState(
-    new LinkedList<SnakePart>({
-      row: snakeStartingRow,
-      column: snakeStartingRow,
-      cell: board[snakeStartingRow][snakeStartingColumn],
-    })
-  );
-
-  const [snakeCells, _setSnakeCells] = useState<SnakeCellsType>(
-    new Set([snake.head.value.cell])
-  );
-  const snakeCellsRef = useRef(snakeCells);
-
-  const setSnakeCells = (newSnakeCells: SnakeCellsType) => {
-    snakeCellsRef.current = newSnakeCells;
-    _setSnakeCells(newSnakeCells);
-  };
+  const {
+    snake,
+    setSnake,
+    snakeUnits,
+    setSnakeUnits,
+    moveSnake: hookMoveSnake,
+    growSnake,
+  } = useSnake({
+    row: snakeStartingRow,
+    column: snakeStartingRow,
+    cell: board[snakeStartingRow][snakeStartingColumn],
+  });
 
   const [foodCell, setFoodCell] = useState<number>();
 
@@ -69,12 +77,11 @@ export default function Board() {
     _setDirection(newDirection);
   };
 
-
   useInterval(() => moveSnake(), 100);
 
   function getCellClassName(cellValue: number): string {
     if (cellValue === foodCell) return CellClassName.Food;
-    if (snakeCells.has(cellValue)) return CellClassName.Snake;
+    if (snakeUnits.has(cellValue)) return CellClassName.Snake;
     return CellClassName.Board;
   }
 
@@ -83,7 +90,7 @@ export default function Board() {
     let nextFoodCell: number;
     do {
       nextFoodCell = generateRandomNumberInRange(1, maxPossibleCellValue);
-    } while (snakeCells.has(nextFoodCell) || foodCell === nextFoodCell);
+    } while (snakeUnits.has(nextFoodCell) || foodCell === nextFoodCell);
     return nextFoodCell;
   }
 
@@ -162,23 +169,6 @@ export default function Board() {
     return growthNodeCoordinates;
   }
 
-  function growSnake() {
-    const growthNodeCoordinates = getGrowthNodeCoordinates();
-
-    if (isOutOfBounds(growthNodeCoordinates)) return;
-
-    const newTailCell =
-      board[growthNodeCoordinates.row][growthNodeCoordinates.column];
-    const newTail = {
-      row: growthNodeCoordinates.row,
-      column: growthNodeCoordinates.column,
-      cell: newTailCell,
-    };
-
-    snake.insertAtTail(newTail);
-    snakeCells.add(newTailCell);
-  }
-
   function handleFoodConsumption() {
     const nextFoodCell = getNextFoodCell();
     setScore(score + 1);
@@ -193,7 +183,7 @@ export default function Board() {
     });
 
     setSnake(snake);
-    setSnakeCells(new Set([snake.head.value.cell]));
+    setSnakeUnits(new Set([snake.head.value.cell]));
     setFoodCell(getNextFoodCell());
     setDirection(Direction.Right);
     setScore(0);
@@ -215,6 +205,11 @@ export default function Board() {
     return false;
   }
 
+  function isGoingToCollide(coordinates: Coordinates): boolean {
+    const cell = board[coordinates.row][coordinates.column];
+    return snakeUnits.has(cell);
+  }
+
   function moveSnake() {
     const currentHeadCoordinates = {
       row: snake.head.value.row,
@@ -225,38 +220,34 @@ export default function Board() {
       currentHeadCoordinates,
       direction
     );
-    if (isOutOfBounds(nextHeadCoordinates)) {
-      handleGameOver();
-      return;
+    if (
+      isOutOfBounds(nextHeadCoordinates) ||
+      isGoingToCollide(nextHeadCoordinates)
+    ) {
+      return handleGameOver();
     }
 
     const nextHeadCell =
       board[nextHeadCoordinates.row][nextHeadCoordinates.column];
-    if (snakeCells.has(nextHeadCell)) {
-      handleGameOver();
-      return;
-    }
 
-    const newHead: SnakePart = {
-      row: nextHeadCoordinates.row,
-      column: nextHeadCoordinates.column,
-      cell: nextHeadCell,
-    };
-    snake.insertAtHead(newHead);
-
-    const newSnakeCells = new Set(snakeCells);
-    newSnakeCells.delete(snake.tail.value.cell);
-    newSnakeCells.add(nextHeadCell);
-
-    snake.tail = snake.tail.next || snake.head;
+    hookMoveSnake(
+      nextHeadCoordinates.row,
+      nextHeadCoordinates.column,
+      nextHeadCell
+    );
 
     const foodConsumed = nextHeadCell === foodCell;
     if (foodConsumed) {
       handleFoodConsumption();
-      growSnake();
-    }
+      const growthNodeCoordinates = getGrowthNodeCoordinates();
 
-    setSnakeCells(newSnakeCells);
+      if (isOutOfBounds(growthNodeCoordinates)) return;
+
+      const growthCell =
+        board[growthNodeCoordinates.row][growthNodeCoordinates.column];
+
+      growSnake(growthNodeCoordinates.row, growthNodeCoordinates.column, growthCell)
+    }
   }
 
   return (
@@ -278,18 +269,4 @@ export default function Board() {
       </div>
     </>
   );
-};
-
-function createBoard(boardSize: number): BoardType {
-  let counter = 1;
-  const board = [];
-
-  for (let i = 0; i < boardSize; i++) {
-    const currentRow = [];
-    for (let j = 0; j < boardSize; j++) {
-      currentRow.push(counter++);
-    }
-    board.push(currentRow);
-  }
-  return board;
 }
