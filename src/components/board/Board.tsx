@@ -60,7 +60,7 @@ export default function Board() {
     setSnake,
     snakeUnits,
     setSnakeUnits,
-    moveSnake: hookMoveSnake,
+    moveSnake,
     growSnake,
   } = useSnake({
     row: snakeStartingRow,
@@ -77,7 +77,6 @@ export default function Board() {
     _setDirection(newDirection);
   };
 
-  useInterval(() => moveSnake(), 100);
 
   function getCellClassName(cellValue: number): string {
     if (cellValue === foodCell) return CellClassName.Food;
@@ -209,7 +208,7 @@ export default function Board() {
     return snakeUnits.has(cell);
   }
 
-  function moveSnake() {
+  function main() {
     const currentHeadCoordinates = {
       row: snake.head.value.row,
       column: snake.head.value.column,
@@ -229,7 +228,7 @@ export default function Board() {
     const nextHeadCell =
       board[nextHeadCoordinates.row][nextHeadCoordinates.column];
 
-    hookMoveSnake(
+    moveSnake(
       nextHeadCoordinates.row,
       nextHeadCoordinates.column,
       nextHeadCell
@@ -248,6 +247,8 @@ export default function Board() {
       growSnake(growthNodeCoordinates.row, growthNodeCoordinates.column, growthCell)
     }
   }
+
+  useInterval(() => main(), 100);
 
   return (
     <>
